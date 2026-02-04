@@ -66,6 +66,8 @@ LLM
 ↓
 Match / No Match
 ```
+In our project, we first perform candidate generation using TF-IDF cosine similarity, retrieving top-k candidates per Amazon record. This reduces the n×m comparison space and achieves Recall@50 ≈ 0.87. The resulting candidate pairs are then passed to an LLM for verification (Stage 2).
+
 **Blocking methods**
 - String similarity
 - Shared attributes (manufacturer)
