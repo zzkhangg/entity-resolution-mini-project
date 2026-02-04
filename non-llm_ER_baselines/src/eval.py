@@ -1,4 +1,4 @@
-from constants import *
+from .constants import *
 
 def compute_metrics(pairs_df, gold_pairs, threshold):
     pairs_df["prediction"] = (pairs_df["similarity"] >= threshold).astype(int)

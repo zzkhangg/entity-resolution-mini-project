@@ -1,7 +1,8 @@
 # %%
 import pandas as pd
 import random
-from constants import AMAZON_ID_COL, GOOGLE_ID_COL
+
+from .constants import AMAZON_ID_COL, GOOGLE_ID_COL
 
 # %%
 def generate_positive_pairs(gt):
