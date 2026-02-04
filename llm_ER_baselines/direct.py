@@ -44,7 +44,7 @@ print(class_balance / len(gold_df))
 
 print("------------- - -------------")
 
-### Clone new pairs_df from ground truth for filtering
+### Clone new pairs_df from ground truth 
 pairs_df = gold_df.drop(columns=["label"])
 
 pairs_df = pairs_df.merge(
@@ -63,8 +63,6 @@ pairs_df = pairs_df.merge(
 ### TF/IDF Cosine Similiarity 
 pairs_df['serialized_amazon'] = pairs_df['serialized_amazon'].fillna('')
 pairs_df['serialized_google'] = pairs_df['serialized_google'].fillna('')
-# %%
-pairs_df = calculate_similiarity(pairs_df, "serialized_amazon", "serialized_google")
 
 end = time.perf_counter()
 total_time = end - start
@@ -73,9 +71,7 @@ num_pairs = len(pairs_df)
 avg_latency = total_time / num_pairs
 throughput = num_pairs / total_time
 # %%
-### Filter to choose candidates for LLM matcher
-BLOCK_THRESHOLD = 0.3
-candidates = pairs_df[pairs_df["similarity"] >= BLOCK_THRESHOLD]
+candidates = pairs_df
 print(len(candidates))
 
 results = []
