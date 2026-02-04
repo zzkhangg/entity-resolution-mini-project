@@ -1,7 +1,8 @@
 import json
 import os
 
-CACHE_PATH = "llm_cache.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CACHE_PATH = os.path.join(BASE_DIR, "llm_cache.json")
 
 def load_cache():
     if os.path.exists(CACHE_PATH):

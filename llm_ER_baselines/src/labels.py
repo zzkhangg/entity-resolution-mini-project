@@ -1,7 +1,7 @@
 # %%
 import pandas as pd
 import random
-
+random.seed(42)
 from .constants import AMAZON_ID_COL, GOOGLE_ID_COL
 
 # %%
@@ -18,7 +18,7 @@ def generate_negative_pairs(gt_map, all_google_ids, k=3):
 
         sampled = random.sample(
             candidates,
-            min(k, len(candidates))
+            min(k, len(candidates),)
         )
 
         for google_id in sampled:
