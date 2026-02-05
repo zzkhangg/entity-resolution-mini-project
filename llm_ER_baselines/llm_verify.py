@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+import time
 from dotenv import load_dotenv
 from openai import OpenAI
 from src.constants import PROMPT_TEMPLATE
@@ -26,9 +27,7 @@ else:
 
 
 def _cache_key(amazon_record: str, google_record: str) -> str:
-    """
-    Stable hash key for a pair of records.
-    """
+    """Stable hash key for a pair of records."""
     raw = amazon_record + "|||" + google_record
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
@@ -49,7 +48,9 @@ def call_llm(amazon_record: str, google_record: str) -> dict:
     {
         "label": "match" | "no_match",
         "confidence": float,
-        "evidence": [str, ...]
+        "evidence": [str],
+        "tokens": int,
+        "latency": float
     }
     """
 
@@ -65,27 +66,40 @@ def call_llm(amazon_record: str, google_record: str) -> dict:
         google_record=google_record
     )
 
+    start = time.perf_counter()
+
     response = client.chat.completions.create(
         model=MODEL_NAME,
         messages=[{"role": "user", "content": prompt}],
         temperature=0
     )
 
+    latency = time.perf_counter() - start
     content = response.choices[0].message.content.strip()
 
     # -------- 3. HARD JSON PARSE --------
     try:
-        result = json.loads(content)
+        parsed = json.loads(content)
     except json.JSONDecodeError as e:
         raise RuntimeError(
             f"LLM returned invalid JSON:\n{content}"
         ) from e
 
     # -------- 4. VALIDATION --------
-    if result["label"] not in {"match", "no_match"}:
-        raise ValueError(f"Invalid label: {result['label']}")
+    label = parsed.get("label")
+    confidence = float(parsed.get("confidence", 0.0))
+    evidence = parsed.get("evidence", [])
 
-    result["confidence"] = float(result["confidence"])
+    if label not in {"match", "no_match"}:
+        raise ValueError(f"Invalid label: {label}")
+
+    result = {
+        "label": label,
+        "confidence": confidence,
+        "evidence": evidence,
+        "tokens": response.usage.total_tokens,
+        "latency": latency
+    }
 
     # -------- 5. SAVE TO CACHE --------
     CACHE[key] = result

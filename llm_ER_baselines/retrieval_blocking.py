@@ -70,12 +70,11 @@ for _, a_row in amazon_df.iterrows():
 candidates_df = pd.DataFrame(rows)
 
 print("Total candidates:", len(candidates_df))
-print(candidates_df.head())
 
 # -------------------------------------------------------------------
-# Recall@k (ranking-aware, correct)
+# Candidate generation recall@K (BLOCKING QUALITY)
 # -------------------------------------------------------------------
-def recall_at_k(candidates_df, gt_df, k):
+def recall_at_k_blocking(candidates_df, gt_df, k):
     hits = 0
     grouped = candidates_df.groupby(AMAZON_ID_COL)
 
@@ -93,11 +92,9 @@ def recall_at_k(candidates_df, gt_df, k):
     return hits / len(gt_df)
 
 
+print("\nCandidate generation recall (before LLM)")
 for k in [5, 10, 20, 50]:
-    r = recall_at_k(candidates_df, gt_df, k)
-    print(f"Recall@{k}: {r:.4f}")
-
-print("Elapsed:", time.perf_counter() - start)
+    print(f"Recall@{k}: {recall_at_k_blocking(candidates_df, gt_df, k):.4f}")
 
 # -------------------------------------------------------------------
 # Save for LLM verification

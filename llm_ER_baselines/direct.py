@@ -10,9 +10,7 @@ from src.labels import generate_gold_df
 from src.loader import load, serialize_record
 import pandas as pd
 import time
-from collections import defaultdict
 from src.constants import *
-from src.blocker import calculate_similiarity
 from openai import OpenAI
 
 # Load the variables from .env

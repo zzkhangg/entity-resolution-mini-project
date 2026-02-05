@@ -3,12 +3,16 @@ from llm_verify import call_llm
 from src.constants import AMAZON_ID_COL, GOOGLE_ID_COL
 from sklearn.metrics import precision_recall_fscore_support
 from src.constants import GT_PATH
-
+import time
 # -----------------------
 # Config
 # -----------------------
 HIGH_CONF = 0.90
 LOW_CONF = 0.30
+
+llm_calls = 0
+total_tokens = 0
+start_time = time.perf_counter()
 
 # -----------------------
 # Load data
@@ -43,6 +47,7 @@ for _, row in candidates_df.iterrows():
         )
         label = out["label"]
         confidence = out["confidence"]
+        total_tokens += out.get("tokens", 0)
 
     results.append({
         AMAZON_ID_COL: row[AMAZON_ID_COL],
@@ -51,6 +56,18 @@ for _, row in candidates_df.iterrows():
         "confidence": confidence,
         "rank": row["rank"]
     })
+
+end_time = time.perf_counter()
+total_time = end_time - start_time
+total_pairs = len(candidates_df)
+
+avg_latency = total_time / total_pairs
+throughput = total_pairs / total_time
+
+print("\nRuntime metrics")
+print(f"Total time (sec): {total_time:.2f}")
+print(f"Avg latency per pair (sec): {avg_latency:.4f}")
+print(f"Throughput (pairs/sec): {throughput:.2f}")
 
 final_df = pd.DataFrame(results)
 
@@ -89,7 +106,7 @@ for _, row in final_df.iterrows():
 precision, recall, f1, _ = precision_recall_fscore_support(
     y_true, y_pred, average="binary"
 )
-
+  
 print("\nFinal metrics")
 print(f"Precision: {precision:.4f}")
 print(f"Recall:    {recall:.4f}")
@@ -104,8 +121,9 @@ saved_calls = total_pairs - llm_calls
 print("\nLLM usage")
 print("Total candidate pairs:", total_pairs)
 print("LLM calls made:", llm_calls)
-print("LLM calls saved:", saved_calls)
-print(f"Saved %: {saved_calls / total_pairs:.2%}")
+print("LLM calls saved:", total_pairs - llm_calls)
+print(f"Saved %: {(total_pairs - llm_calls) / total_pairs:.2%}")
+print("Total LLM tokens:", total_tokens)
 
 # -----------------------
 # Save results

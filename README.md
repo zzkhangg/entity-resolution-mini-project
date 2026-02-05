@@ -35,6 +35,9 @@ Evaluated pairs
       ↓
 Match / No Match
 ```
+
+We evaluate an LLM-only entity matcher without blocking on a sampled set of positive ground-truth pairs and randomly generated negative pairs. While this does not enumerate all n×m combinations, it isolates the matching capability of the LLM without any retrieval stage and provides a cost-aware approximation of direct matching.
+
 **Pros**
 - Very simple implementation
 - No blocking or feature engineering
@@ -47,12 +50,45 @@ Match / No Match
 - Not scalable
 
 ---
+## Evaluation Metrics
+
+- Precision
+- Recall
+- F1 Score
+- Average latency per pair
+- Throughput (pairs/sec)
+- Number of LLM calls
+- Total token usage
+
+---
+
+## Key Results
+
+| Metric | Value |
+|------|------|
+| Precision | 0.99 |
+| Recall | 0.94 |
+| F1 Score | 0.97 |
+| Avg Latency (sec) | 1.66 |
+| Throughput (pairs/sec) | 0.6 |
+| LLM Calls | 4639 |
+| Total Tokens | 2,363,954 |
+
+### Observations
+
+The Direct LLM approach achieves near-perfect precision, indicating almost no false positives.
+
+Recall remains high but not perfect, suggesting the LLM occasionally misses true matches.
+
+Every pair requires an LLM call, leading to high token usage and latency.
+
+While accuracy is strong, the approach is not scalable due to quadratic cost growth and slow throughput.
 
 ### 2. Two-Stage LLM-Based Matching
 
 **Description**
 
-A cheap blocking or retrieval stage is used to reduce candidate pairs before invoking the LLM for high-precision verification.
+A cheap blocking or retrieval stage is used to reduce candidate pairs before invoking the LLM for high-precision verification. 
 
 **Pipeline**
 ```text
