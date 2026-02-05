@@ -19,6 +19,9 @@ Each pair is classified as:
 
 ---
 
+## Assumptions
+Matching cardinality: many-to-one (Many Google Products to one Amazon product)
+
 ## Approaches
 
 ### 1. Direct LLM-Based Matching
@@ -50,7 +53,7 @@ We evaluate an LLM-only entity matcher without blocking on a sampled set of posi
 - Not scalable
 
 ---
-## Evaluation Metrics
+#### Evaluation Metrics
 
 - Precision
 - Recall
@@ -62,7 +65,7 @@ We evaluate an LLM-only entity matcher without blocking on a sampled set of posi
 
 ---
 
-## Key Results
+#### Key Results
 
 | Metric | Value |
 |------|------|
@@ -74,7 +77,7 @@ We evaluate an LLM-only entity matcher without blocking on a sampled set of posi
 | LLM Calls | 4639 |
 | Total Tokens | 2,363,954 |
 
-### Observations
+#### Observations
 
 The Direct LLM approach achieves near-perfect precision, indicating almost no false positives.
 
@@ -123,34 +126,25 @@ In our project, we first perform candidate generation using TF-IDF cosine simila
 
 ---
 
-## Evaluation Metrics
+#### Evaluation
+Due to time constraints and the high cost of LLM inference, we did not complete end-to-end experiments for the full two-stage entity resolution pipeline (candidate generation + LLM matching).
+However, we evaluated the candidate generation stage independently, focusing on its recall performance prior to LLM scoring.
 
-- Precision
-- Recall
-- F1 Score
-- Average latency per pair
-- Throughput (pairs/sec)
-- Number of LLM calls
-- Total token usage
+- Total generated candidates: 68,150
 
----
+- Matching cardinality: many-to-one
 
-## Key Results
+Evaluation metric: Recall@K (whether the true match appears in the top-K candidates)
+**Candidate Generation Recall (Before LLM)**
 
-| Metric | Value |
-|------|------|
-| Precision | 1.00 |
-| Recall | 0.91 |
-| F1 Score | 0.95 |
-| Avg Latency (sec) | 1.72 |
-| Throughput (pairs/sec) | 0.58 |
-| LLM Calls | 2,177 |
-| Total Tokens | 1,379,956 |
-
+| Metric    | Value  |
+|-----------|--------|
+| Recall@5  | 0.7192 |
+| Recall@10 | 0.7908 |
+| Recall@20 | 0.8315 |
+| Recall@50 | 0.8708 |
 **Observations**
-- Perfect precision indicates no false positives.
 - In the Two-Stage setting, Recall loss is mainly due to conservative decisions or blocker misses.
-- Latency and throughput confirm that scoring all n·m pairs is infeasible.
 
 ---
 
